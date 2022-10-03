@@ -3,4 +3,3 @@ description: "Do something on PR review"
 runs:
   using: "node16"
   main: "index.js"
-on: pull_request_review
