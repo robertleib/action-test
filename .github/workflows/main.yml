@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 on:
   pull_request_review:
     branches: ["main"]
+=======
+on: pull_request_review
+>>>>>>> 543d4aaf8800467cf4681117f118d9cf0879ef1f
   workflow_dispatch:
 
 jobs:
