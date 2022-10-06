@@ -1,6 +1,8 @@
 on:
   pull_request_review:
-    branches: ["main"]
+    types: [submitted, dismissed]
+  pull_request_review_comment:
+    types: [created, deleted]
   workflow_dispatch:
 
 jobs:
