@@ -7,21 +7,28 @@ const run = async () => {
     if (!githubToken) {
       throw Error(`input 'github_token' is required`)
     }
-    console.log(github.GitHub)
-    const client = new github.GitHub(githubToken)
+    const client = github.getOctokit(githubToken)
 
-    const pr = await client.issues.get({
+    const pr = await client.rest.issues.get({
       owner: github.context.payload.repository.owner.login,
       repo: github.context.payload.repository.name,
       issue_number: context.payload.pull_request.number
     })
 
+    console.log("pr:", pr)
+
     const payload = JSON.stringify(github.context.payload, undefined, 2)
     console.log(`The event payload: ${payload}`)
 
+    const existingLabels = client.rest.issues.listLabelsOnIssue({
+      owner: github.context.payload.repository.owner.login,
+      repo: github.context.payload.repository.name,
+      issue_number: context.payload.pull_request.number
+    })
 
 
-    const existingLabels = pr.data.labels.map(label => label.name).filter(l => l !== '')
+
+    // const existingLabels = pr.data.labels.map(label => label.name).filter(l => l !== '')
 
 
     console.log('The repo labels:', existingLabels)
