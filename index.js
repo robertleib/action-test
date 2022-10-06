@@ -20,11 +20,13 @@ const run = async () => {
     const payload = JSON.stringify(github.context.payload, undefined, 2)
     console.log(`The event payload: ${payload}`)
 
-    const existingLabels = await client.rest.issues.listLabelsOnIssue({
+    const labels = await client.rest.issues.listLabelsOnIssue({
       owner: github.context.payload.repository.owner.login,
       repo: github.context.payload.repository.name,
       issue_number: github.context.payload.pull_request.number
     })
+
+    existingLabels = labels
       .data
       .map(label => label.name)
       .filter(l => l !== '')
