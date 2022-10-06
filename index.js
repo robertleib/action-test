@@ -25,6 +25,9 @@ const run = async () => {
       repo: github.context.payload.repository.name,
       issue_number: github.context.payload.pull_request.number
     })
+      .data
+      .map(label => label.name)
+      .filter(l => l !== '')
 
 
 
