@@ -7,6 +7,7 @@ const run = async () => {
     if (!githubToken) {
       throw Error(`input 'github_token' is required`)
     }
+    console.log(github.GitHub)
     const client = new github.GitHub(githubToken)
 
     const pr = await client.issues.get({
