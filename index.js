@@ -23,7 +23,7 @@ const run = async () => {
     const existingLabels = client.rest.issues.listLabelsOnIssue({
       owner: github.context.payload.repository.owner.login,
       repo: github.context.payload.repository.name,
-      issue_number: context.payload.pull_request.number
+      issue_number: github.context.payload.pull_request.number
     })
 
 
