@@ -1,5 +1,13 @@
 name: "Test"
 description: "Do something on PR review"
+inputs:
+  github_token:
+    description: A GitHub token.
+    required: false
+    default: ${{ github.token }}
 runs:
   using: "node16"
   main: "index.js"
+branding:
+  icon: bookmark
+  color: green
