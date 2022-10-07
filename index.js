@@ -10,8 +10,8 @@ const run = async () => {
       return
     }
 
-    console.log('state:', github.context.payload?.review?.state)
-    console.log('action:', github.context.payload.action)
+    // console.log('state:', github.context.payload?.review?.state)
+    // console.log('action:', github.context.payload.action)
 
 
     if (!githubToken) {
@@ -31,7 +31,7 @@ const run = async () => {
 
     const action = github.context.payload.action
     let delta = 0
-    if (action == 'dimissed') {
+    if (action == 'dismissed') {
       delta = -1
     }
     if (action == 'submitted' && github.context.payload?.review?.state == 'approved') {
@@ -39,19 +39,19 @@ const run = async () => {
     }
 
     if (approveViaComment && github.context.payload?.review?.state == 'commented') {
-      let body = github.context.payload?.review?.body
-      console.log('body:', body)
-      if(body !== '' && body.includes("👍")) {
+      let body = github.context.payload?.review?.body || ''
+
+      if(body.includes("👍")) {
         delta = +1
-      } else if (body !== '' && body.includes("👎")) {
+      } else if (body.includes("👎")) {
         delta = -1
       }
     }
     if (delta == 0) { return }
 
-    const pr = await client.rest.issues.get(baseParams)
+    // const pr = await client.rest.issues.get(baseParams)
 
-    console.log("pr:", pr)
+    // console.log("pr:", pr)
 
     const prReviews = await client.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
       owner,
@@ -59,35 +59,47 @@ const run = async () => {
       pull_number: issue_number
     })
 
-    approvals =
+    approvals = prReviews
+      .data
+      .map(review => review.state)
+      .filter(r => r == 'APPROVED')
+      .length
 
-    console.log("prReviews:", prReviews)
+    dismissals = prReviews
+      .data
+      .map(review => review.state)
+      .filter(r => r == 'DISMISSED')
+      .length
+
+    const existingApprovalCount = approvals - dismissals
+
+    // console.log("prReviews:", prReviews)
 
     const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
 
-    const existingPlusLabels = labels
-      .data
-      .map(label => label.name)
-      .filter(l => l == '+1' || l == '+2')
+    // const existingPlusLabels = labels
+    //   .data
+    //   .map(label => label.name)
+    //   .filter(l => l == '+1' || l == '+2')
 
     const existingLabels = labels
       .data
       .map(label => label.name)
       .filter(l => l !== '' && l !== '+1' && l !== '+2')
 
-    console.log('existingLabels:', existingLabels)
-    console.log('existingPlusLabels:', existingPlusLabels)
+    // console.log('existingLabels:', existingLabels)
+    // console.log('existingPlusLabels:', existingPlusLabels)
 
-    let currentPlusValue = 0
-    if (existingPlusLabels.includes("+1")) { currentPlusValue = 1 }
-    if (existingPlusLabels.includes("+2")) { currentPlusValue = 2 }
+    // let currentPlusValue = 0
+    // if (existingPlusLabels.includes("+1")) { currentPlusValue = 1 }
+    // if (existingPlusLabels.includes("+2")) { currentPlusValue = 2 }
 
     let newLabel
     let newLabels = existingLabels
 
     if (delta > 0) {
-      switch(currentPlusValue) {
-        case 2:
+      switch(existingApprovalCount) {
+        case existingApprovalCount > 1:
           return
         case 1:
           newLabel = "+2"
@@ -99,25 +111,28 @@ const run = async () => {
           return
       }
     } else {
-      switch(currentPlusValue) {
+      switch(existingApprovalCount) {
+        case existingApprovalCount > 2:
+          return
         case 2:
           newLabel = "+1"
+          break
         case 1:
           break
-        case 0:
+        case existingApprovalCount < 1:
           return
         default:
           return
       }
     }
 
-    console.log('newLabel:', newLabel)
+    // console.log('newLabel:', newLabel)
 
     if (newLabel) {
       newLabels.push(newLabel)
     }
 
-    console.log('newLabels:', newLabels)
+    // console.log('newLabels:', newLabels)
 
     client.rest.issues.setLabels({
       ...baseParams,
