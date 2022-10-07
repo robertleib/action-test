@@ -10,7 +10,7 @@ const run = async () => {
       return
     }
 
-    console.log("user:", github.context.payload.user)
+    console.log("user:", github.context.payload)
 
 
     if (!githubToken) {
