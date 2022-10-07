@@ -46,9 +46,9 @@ const run = async () => {
     }
     if (delta == 0) { return }
 
-    // const pr = await client.rest.issues.get(baseParams)
+    const pr = await client.rest.issues.get(baseParams)
 
-    // console.log("pr:", pr)
+    console.log("pr:", pr)
 
     const prReviews = await client.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
       owner,
