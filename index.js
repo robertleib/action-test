@@ -10,6 +10,10 @@ const run = async () => {
       return
     }
 
+    console.log('state:', github.context.payload?.review?.state)
+    console.log('action:', github.context.payload.action)
+
+
     if (!githubToken) {
       throw Error(`input 'github_token' is required`)
     }
@@ -54,6 +58,8 @@ const run = async () => {
       repo,
       pull_number: issue_number
     })
+
+    approvals =
 
     console.log("prReviews:", prReviews)
 
