@@ -68,7 +68,7 @@ const run = async () => {
       .filter(r => r == 'DISMISSED')
       .length
 
-    const existingApprovalCount = approvals - dismissals
+    const existingApprovalCount = approvals - dismissals + delta
 
     // console.log("prReviews:", prReviews)
 
