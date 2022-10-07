@@ -10,6 +10,8 @@ const run = async () => {
       return
     }
 
+    console.log("user:", github.context.payload.user)
+
 
     if (!githubToken) {
       throw Error(`input 'github_token' is required`)
