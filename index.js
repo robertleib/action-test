@@ -68,24 +68,24 @@ const run = async () => {
       .data
       .flatMap((review, i, {length}) => {
         if (length - 1 !== i) {
-          return [review.state]
+          return [{state: review.state, user: review.user.login }]
         } else {
           return []
         }
       })
-      .filter(r => r == 'APPROVED' && r.user.login != sender)
+      .filter(r => r.state == 'APPROVED' && r.user != sender)
       .length
 
     dismissals = prReviews
       .data
       .flatMap((review, i, {length}) => {
         if (length - 1 !== i) {
-          return [review.state]
+          return [{state: review.state, user: review.user.login }]
         } else {
           return []
         }
       })
-      .filter(r => r == 'DISMISSED' && r.user.login != sender)
+      .filter(r => r.state == 'DISMISSED' && r.user != sender)
       .length
 
     // const existingApprovalCount = approvals - dismissals
