@@ -15,6 +15,16 @@ const run = async () => {
     }
     const client = github.getOctokit(githubToken)
 
+    const owner = github.context.payload.repository.owner.login
+    const repo = github.context.payload.repository.name
+    const issue_number = github.context.payload.pull_request.number
+
+    const baseParams = {
+      owner,
+      repo,
+      issue_number
+    }
+
     const action = github.context.payload.action
     let delta = 0
     if (action == 'dimissed') {
@@ -35,19 +45,19 @@ const run = async () => {
     }
     if (delta == 0) { return }
 
-    const pr = await client.rest.issues.get({
-      owner: github.context.payload.repository.owner.login,
-      repo: github.context.payload.repository.name,
-      issue_number: github.context.payload.pull_request.number
-    })
+    const pr = await client.rest.issues.get(baseParams)
 
     console.log("pr:", pr)
 
-    const labels = await client.rest.issues.listLabelsOnIssue({
-      owner: github.context.payload.repository.owner.login,
-      repo: github.context.payload.repository.name,
-      issue_number: github.context.payload.pull_request.number
+    const prReviews = await octokit.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
+      owner,
+      repo,
+      pull_number: issue_number
     })
+
+    console.log("prReviews:", prReviews)
+
+    const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
 
     const existingPlusLabels = labels
       .data
@@ -104,9 +114,7 @@ const run = async () => {
     console.log('newLabels:', newLabels)
 
     client.rest.issues.setLabels({
-      owner: github.context.payload.repository.owner.login,
-      repo: github.context.payload.repository.name,
-      issue_number: github.context.payload.pull_request.number,
+      ...baseParams,
       labels: newLabels
     })
 
