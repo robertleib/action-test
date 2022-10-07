@@ -10,15 +10,16 @@ const run = async () => {
       return
     }
 
-
     if (!githubToken) {
       throw Error(`input 'github_token' is required`)
     }
-    const client = github.getOctokit(githubToken)
 
+    const client = github.getOctokit(githubToken)
+    const sender = github.context.payload.sender.login
     const owner = github.context.payload.repository.owner.login
     const repo = github.context.payload.repository.name
     const issue_number = github.context.payload.pull_request.number
+    const action = github.context.payload.action
 
     const baseParams = {
       owner,
@@ -26,7 +27,6 @@ const run = async () => {
       issue_number
     }
 
-    const action = github.context.payload.action
     let delta = 0
     if (action == 'dismissed') {
       delta = -1
@@ -46,50 +46,30 @@ const run = async () => {
     }
     if (delta == 0) { return }
 
-    // const pr = await client.rest.issues.get(baseParams)
-
-    // console.log("pr:", pr)
-
     const prReviews = await client.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
       owner,
       repo,
       pull_number: issue_number
     })
 
-    approvals = prReviews
+    existingApprovalCount = prReviews
       .data
-      .map(review => review.state)
-      .filter(r => r == 'APPROVED')
+      .flatMap((review, i, {length}) => {
+        if (length - 1 !== i) {
+          return [{state: review.state, user: review.user.login }]
+        } else {
+          return []
+        }
+      })
+      .filter(r => r.state == 'APPROVED' && r.user != sender)
       .length
-
-    dismissals = prReviews
-      .data
-      .map(review => review.state)
-      .filter(r => r == 'DISMISSED')
-      .length
-
-    const existingApprovalCount = approvals - dismissals + delta
-
-    // console.log("prReviews:", prReviews)
 
     const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
-
-    // const existingPlusLabels = labels
-    //   .data
-    //   .map(label => label.name)
-    //   .filter(l => l == '+1' || l == '+2')
 
     const existingLabels = labels
       .data
       .map(label => label.name)
       .filter(l => l !== '' && l !== '+1' && l !== '+2')
-
-    // console.log('existingLabels:', existingLabels)
-    // console.log('existingPlusLabels:', existingPlusLabels)
-
-    // let currentPlusValue = 0
-    // if (existingPlusLabels.includes("+1")) { currentPlusValue = 1 }
-    // if (existingPlusLabels.includes("+2")) { currentPlusValue = 2 }
 
     let newLabel
     let newLabels = existingLabels
@@ -123,13 +103,9 @@ const run = async () => {
       }
     }
 
-    // console.log('newLabel:', newLabel)
-
     if (newLabel) {
       newLabels.push(newLabel)
     }
-
-    // console.log('newLabels:', newLabels)
 
     client.rest.issues.setLabels({
       ...baseParams,
