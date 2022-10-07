@@ -58,9 +58,11 @@ const run = async () => {
 
     approvals = prReviews
       .data
-      .map((review, i, {length}) => {
+      .flatMap((review, i, {length}) => {
         if (length - 1 !== i) {
-          return review.state
+          return [review.state]
+        } else {
+          return []
         }
       })
       .filter(r => r == 'APPROVED')
@@ -68,15 +70,18 @@ const run = async () => {
 
     dismissals = prReviews
       .data
-      .map((review, i, {length}) => {
+      .flatMap((review, i, {length}) => {
         if (length - 1 !== i) {
-          return review.state
+          return [review.state]
+        } else {
+          return []
         }
       })
       .filter(r => r == 'DISMISSED')
       .length
 
     const existingApprovalCount = approvals - dismissals
+    console.log()
 
     const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
 
