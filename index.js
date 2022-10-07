@@ -81,7 +81,7 @@ const run = async () => {
       .length
 
     const existingApprovalCount = approvals - dismissals
-    console.log()
+    console.log("approvals:", approvals, "dismissals:", dismissals, "existingApprovalCount:", existingApprovalCount)
 
     const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
 
@@ -95,7 +95,7 @@ const run = async () => {
       .map(label => label.name)
       .filter(l => l !== '' && l !== '+1' && l !== '+2')
 
-    // console.log('existingLabels:', existingLabels)
+    console.log('existingLabels:', existingLabels)
     // console.log('existingPlusLabels:', existingPlusLabels)
 
     // let currentPlusValue = 0
@@ -134,13 +134,13 @@ const run = async () => {
       }
     }
 
-    // console.log('newLabel:', newLabel)
+    console.log('newLabel:', newLabel)
 
     if (newLabel) {
       newLabels.push(newLabel)
     }
 
-    // console.log('newLabels:', newLabels)
+    console.log('newLabels:', newLabels)
 
     client.rest.issues.setLabels({
       ...baseParams,
