@@ -12,6 +12,8 @@ const run = async () => {
 
     console.log("user:", github.context.payload.sender.login)
 
+    const sender = github.context.payload.sender.login
+
 
     if (!githubToken) {
       throw Error(`input 'github_token' is required`)
@@ -48,9 +50,9 @@ const run = async () => {
     }
     if (delta == 0) { return }
 
-    const pr = await client.rest.issues.get(baseParams)
+    // const pr = await client.rest.issues.get(baseParams)
 
-    console.log("pr:", pr)
+    // console.log("pr:", pr)
 
     const prReviews = await client.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
       owner,
@@ -71,7 +73,7 @@ const run = async () => {
           return []
         }
       })
-      .filter(r => r == 'APPROVED')
+      .filter(r => r == 'APPROVED' && r.user.login != sender)
       .length
 
     dismissals = prReviews
@@ -83,7 +85,7 @@ const run = async () => {
           return []
         }
       })
-      .filter(r => r == 'DISMISSED')
+      .filter(r => r == 'DISMISSED' && r.user.login != sender)
       .length
 
     // const existingApprovalCount = approvals - dismissals
