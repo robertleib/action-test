@@ -4,7 +4,7 @@ const github = require('@actions/github')
 const run = async () => {
   try {
     const githubToken = core.getInput('github_token')
-    const approveViaComment = core.getInput('approve_via_comment') == '' ? true : true
+    const approveViaComment = core.getInput('approve_via_comment') == '' ? false : true
 
     if (!approveViaComment && github.context.payload?.review?.state == 'commented') {
       return
@@ -40,11 +40,6 @@ const run = async () => {
       repo: github.context.payload.repository.name,
       issue_number: github.context.payload.pull_request.number
     })
-
-    // console.log("pr:", pr)
-
-    // const payload = JSON.stringify(github.context.payload, undefined, 2)
-    // console.log(`The event payload: ${payload}`)
 
     const labels = await client.rest.issues.listLabelsOnIssue({
       owner: github.context.payload.repository.owner.login,
