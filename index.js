@@ -29,7 +29,7 @@ const run = async () => {
       console.log('body:', body)
       if(body !== '' && body.includes("👍")) {
         delta = +1
-      } else if ((body !== '' && body.includes("👎")) {
+      } else if (body !== '' && body.includes("👎")) {
         delta = -1
       }
     }
