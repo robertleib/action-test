@@ -56,6 +56,8 @@ const run = async () => {
       pull_number: issue_number
     })
 
+    console.log("prReviews:", prReviews)
+
     existingApprovalCount = prReviews
       .data
       .flatMap((review, i, {length}) => {
