@@ -49,7 +49,7 @@ const run = async () => {
 
     console.log("pr:", pr)
 
-    const prReviews = await octokit.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
+    const prReviews = await client.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
       owner,
       repo,
       pull_number: issue_number
