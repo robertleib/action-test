@@ -10,9 +10,6 @@ const run = async () => {
       return
     }
 
-    // console.log('state:', github.context.payload?.review?.state)
-    // console.log('action:', github.context.payload.action)
-
 
     if (!githubToken) {
       throw Error(`input 'github_token' is required`)
@@ -71,7 +68,7 @@ const run = async () => {
       .filter(r => r == 'DISMISSED')
       .length
 
-    const existingApprovalCount = approvals - dismissals
+    const existingApprovalCount = approvals - dismissals + delta
 
     // console.log("prReviews:", prReviews)
 
