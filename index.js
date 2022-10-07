@@ -38,10 +38,10 @@ const run = async () => {
       issue_number: github.context.payload.pull_request.number
     })
 
-    console.log("pr:", pr)
+    // console.log("pr:", pr)
 
-    const payload = JSON.stringify(github.context.payload, undefined, 2)
-    console.log(`The event payload: ${payload}`)
+    // const payload = JSON.stringify(github.context.payload, undefined, 2)
+    // console.log(`The event payload: ${payload}`)
 
     const labels = await client.rest.issues.listLabelsOnIssue({
       owner: github.context.payload.repository.owner.login,
@@ -59,8 +59,8 @@ const run = async () => {
       .map(label => label.name)
       .filter(l => l !== '' || l !== '+1' || l !== '+2')
 
-    console.log('The repo labels:', existingLabels)
-    console.log('The existingPlusLabels:', existingPlusLabels)
+    console.log('existingLabels:', existingLabels)
+    console.log('existingPlusLabels:', existingPlusLabels)
 
     let currentPlusValue = 0
     if (existingPlusLabels.includes("+1")) { currentPlusValue = 1 }
@@ -95,9 +95,13 @@ const run = async () => {
       }
     }
 
+    console.log('newLabel:', newLabel)
+
     if (newLabel) {
       newLabels.push(newLabel)
     }
+
+    console.log('newLabels:', newLabels)
 
     client.rest.issues.setLabels({
       owner: github.context.payload.repository.owner.login,
