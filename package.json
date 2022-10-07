@@ -10,8 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/robertleib/action-test.git"
   },
-  "keywords": [],
-  "author": "",
+  "author": "robertleib",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/robertleib/action-test/issues"

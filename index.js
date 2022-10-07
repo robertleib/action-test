@@ -41,6 +41,8 @@ const run = async () => {
       issue_number: github.context.payload.pull_request.number
     })
 
+    console.log("pr:", pr)
+
     const labels = await client.rest.issues.listLabelsOnIssue({
       owner: github.context.payload.repository.owner.login,
       repo: github.context.payload.repository.name,
