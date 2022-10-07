@@ -70,8 +70,6 @@ const run = async () => {
 
     const existingApprovalCount = approvals - dismissals + delta
 
-    // console.log("prReviews:", prReviews)
-
     const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
 
     // const existingPlusLabels = labels
