@@ -10,7 +10,7 @@ const run = async () => {
       return
     }
 
-    console.log("user:", github.context.payload)
+    console.log("user:", github.context.payload.sender.login)
 
 
     if (!githubToken) {
@@ -57,6 +57,8 @@ const run = async () => {
       repo,
       pull_number: issue_number
     })
+
+    console.log("prReview last:", prReviews.data[-1])
 
     console.log("prReviews:", prReviews)
 
