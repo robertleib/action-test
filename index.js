@@ -60,6 +60,7 @@ const run = async () => {
       .filter(l => l !== '' || l !== '+1' || l !== '+2')
 
     console.log('The repo labels:', existingLabels)
+    console.log('The existingPlusLabels:', existingPlusLabels)
 
     let currentPlusValue = 0
     if (existingPlusLabels.includes("+1")) { currentPlusValue = 1 }
