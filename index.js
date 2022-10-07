@@ -27,8 +27,10 @@ const run = async () => {
     if (approveViaComment && github.context.payload?.review?.state == 'commented') {
       let body = github.context.payload?.review?.body
       console.log('body:', body)
-      if(body !== '' && body.includes('dude')) {
+      if(body !== '' && body.includes("👍")) {
         delta = +1
+      } else if ((body !== '' && body.includes("👎")) {
+        delta = -1
       }
     }
     if (delta == 0) { return }
