@@ -57,7 +57,7 @@ const run = async () => {
     const existingLabels = labels
       .data
       .map(label => label.name)
-      .filter(l => l !== '' || l !== '+1' || l !== '+2')
+      .filter(l => l !== '' && l !== '+1' && l !== '+2')
 
     console.log('existingLabels:', existingLabels)
     console.log('existingPlusLabels:', existingPlusLabels)
