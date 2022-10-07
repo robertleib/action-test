@@ -56,7 +56,7 @@ const run = async () => {
       pull_number: issue_number
     })
 
-    approvals = prReviews
+    existingApprovalCount = prReviews
       .data
       .flatMap((review, i, {length}) => {
         if (length - 1 !== i) {
@@ -80,8 +80,8 @@ const run = async () => {
       .filter(r => r == 'DISMISSED')
       .length
 
-    const existingApprovalCount = approvals - dismissals
-    console.log("approvals:", approvals, "dismissals:", dismissals, "existingApprovalCount:", existingApprovalCount)
+    // const existingApprovalCount = approvals - dismissals
+    console.log("dismissals:", dismissals, "existingApprovalCount:", existingApprovalCount)
 
     const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
 
