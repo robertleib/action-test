@@ -58,7 +58,7 @@ const run = async () => {
       pull_number: issue_number
     })
 
-    console.log("prReview last:", prReviews.data[-1])
+    console.log("prReview last:", prReviews.data[prReviews.data.length - 1])
 
     console.log("prReviews:", prReviews)
 
