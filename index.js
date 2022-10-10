@@ -29,11 +29,14 @@ const run = async () => {
     assignPullRequestIfNoAssignees({ client, baseParams })
 
     const delta = findReviewCountDelta({ approveViaComment })
+    console.log("delta:", delta)
     if (delta == 0) { return }
 
     const existingApprovalCount = countApprovalsByOtherUsers({ client, baseParams, sender })
+    console.log("delta:", existingApprovalCount)
 
     const existingLabels = preserveOtherLabels({ client, baseParams })
+    console.log("existingLabels:", existingLabels)
 
     let plusLabel
     let newLabels = existingLabels
@@ -70,6 +73,10 @@ const run = async () => {
     if (plusLabel) {
       newLabels.push(plusLabel)
     }
+
+    console.log("plusLabel:", plusLabel)
+    console.log("newLabels:", newLabels)
+
 
     await client.rest.issues.setLabels({
       ...baseParams,
