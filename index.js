@@ -64,7 +64,7 @@ const run = async () => {
         case 1:
           break
         case existingApprovalCount < 1:
-          return
+          break
         default:
           return
       }
@@ -128,6 +128,8 @@ const assignPullRequestIfNoAssignees = async ({
   const pr = github.context.payload.pull_request
   const assignees = pr.assignees
   const author = pr.user
+
+  console.log("assignees:", assignees)
 
   if (!assignees || assignees.length === 0) {
     await client.request(`POST /repos/${baseParams.owner}/${baseParams.repo}/issues/${baseParams.issue_number}/assignees`, {
