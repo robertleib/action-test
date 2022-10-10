@@ -32,10 +32,10 @@ const run = async () => {
     console.log("delta:", delta)
     if (delta == 0) { return }
 
-    const existingApprovalCount = countApprovalsByOtherUsers({ client, baseParams, sender })
-    console.log("delta:", existingApprovalCount)
+    const existingApprovalCount = await countApprovalsByOtherUsers({ client, baseParams, sender })
+    console.log("existingApprovalCount:", existingApprovalCount)
 
-    const existingLabels = preserveOtherLabels({ client, baseParams })
+    const existingLabels = await preserveOtherLabels({ client, baseParams })
     console.log("existingLabels:", existingLabels)
 
     let plusLabel
