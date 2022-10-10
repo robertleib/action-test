@@ -66,12 +66,12 @@ const run = async () => {
         case 1:
           console.log("1")
           break
-        case existingApprovalCount < 1:
-          console.log("existingApprovalCount < 1")
+        case 0:
+          console.log("0")
           break
         default:
           console.log("default")
-          return
+          break
       }
     }
 
