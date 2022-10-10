@@ -25,38 +25,17 @@ const run = async () => {
       repo,
       issue_number
     }
-    console.log("Pr from context", github.context.payload.pull_request)
+
     assignPullRequestIfNoAssignees({ client, baseParams })
 
     const delta = findReviewCountDelta({ approveViaComment })
     if (delta == 0) { return }
 
-    const prReviews = await client.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
-      owner,
-      repo,
-      pull_number: issue_number
-    })
+    const existingApprovalCount = countApprovalsByOtherUsers({ client, baseParams, sender })
 
-    existingApprovalCount = prReviews
-      .data
-      .flatMap((review, i, {length}) => {
-        if (length - 1 !== i) {
-          return [{state: review.state, user: review.user.login }]
-        } else {
-          return []
-        }
-      })
-      .filter(r => r.state == 'APPROVED' && r.user != sender)
-      .length
+    const existingLabels = preserveOtherLabels({ client, baseParams })
 
-    const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
-
-    const existingLabels = labels
-      .data
-      .map(label => label.name)
-      .filter(l => l !== '' && l !== '+1' && l !== '+2')
-
-    let newLabel
+    let plusLabel
     let newLabels = existingLabels
 
     if (delta > 0) {
@@ -64,10 +43,10 @@ const run = async () => {
         case existingApprovalCount > 1:
           return
         case 1:
-          newLabel = "+2"
+          plusLabel = "+2"
           break
         case 0:
-          newLabel = "+1"
+          plusLabel = "+1"
           break
         default:
           return
@@ -77,7 +56,7 @@ const run = async () => {
         case existingApprovalCount > 2:
           return
         case 2:
-          newLabel = "+1"
+          plusLabel = "+1"
           break
         case 1:
           break
@@ -88,8 +67,8 @@ const run = async () => {
       }
     }
 
-    if (newLabel) {
-      newLabels.push(newLabel)
+    if (plusLabel) {
+      newLabels.push(plusLabel)
     }
 
     await client.rest.issues.setLabels({
@@ -104,13 +83,45 @@ const run = async () => {
   }
 }
 
+const preserveOtherLabels = async ({ client, baseParams }) => {
+  const labels = await client.rest.issues.listLabelsOnIssue(baseParams)
+
+  return labels
+    .data
+    .map(label => label.name)
+    .filter(l => l !== '' && l !== '+1' && l !== '+2')
+}
+
+const countApprovalsByOtherUsers = async ({
+  client,
+  baseParams,
+  sender
+}) => {
+  const prReviews = await client.request(`GET /repos/${baseParams.owner}/${baseParams.repo}/pulls/${baseParams.issue_number}/reviews`, {
+    ...baseParams,
+    pull_number: baseParams.issue_number
+  })
+
+  return prReviews
+    .data
+    .flatMap((review, i, {length}) => {
+      if (length - 1 !== i) {
+        return [{state: review.state, user: review.user.login }]
+      } else {
+        return []
+      }
+    })
+    .filter(r => r.state == 'APPROVED' && r.user != sender)
+    .length
+}
+
 const assignPullRequestIfNoAssignees = async ({
   client, baseParams
 }) => {
-  const pr = await client.rest.issues.get(baseParams)
-  const assignees = pr.data.assignees
-  const author = pr.data.user
-  console.log("assignPullRequestIfNoAssignees", "author:", author.login, "assignees:", assignees )
+  const pr = github.context.payload.pull_request
+  const assignees = pr.assignees
+  const author = pr.user
+
   if (!assignees || assignees.length === 0) {
     await client.request(`POST /repos/${baseParams.owner}/${baseParams.repo}/issues/${baseParams.issue_number}/assignees`, {
       ...baseParams,
@@ -130,7 +141,7 @@ const findReviewCountDelta = ({ approveViaComment = false }) => {
     delta = +1
   }
 
-  if (approveViaComment && github.context.payload?.review?.state == 'commented') {
+  if (delta == 0 && approveViaComment && github.context.payload?.review?.state == 'commented') {
     let body = github.context.payload?.review?.body || ''
 
     if(body.includes("👍")) {
