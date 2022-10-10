@@ -19,31 +19,16 @@ const run = async () => {
     const owner = github.context.payload.repository.owner.login
     const repo = github.context.payload.repository.name
     const issue_number = github.context.payload.pull_request.number
-    const action = github.context.payload.action
 
     const baseParams = {
       owner,
       repo,
       issue_number
     }
+    console.log("Pr from context", github.context.payload.pull_request)
+    assignPullRequestIfNoAssignees({ client, baseParams })
 
-    let delta = 0
-    if (action == 'dismissed') {
-      delta = -1
-    }
-    if (action == 'submitted' && github.context.payload?.review?.state == 'approved') {
-      delta = +1
-    }
-
-    if (approveViaComment && github.context.payload?.review?.state == 'commented') {
-      let body = github.context.payload?.review?.body || ''
-
-      if(body.includes("👍")) {
-        delta = +1
-      } else if (body.includes("👎")) {
-        delta = -1
-      }
-    }
+    const delta = findReviewCountDelta({ approveViaComment })
     if (delta == 0) { return }
 
     const prReviews = await client.request(`GET /repos/${owner}/${repo}/pulls/${issue_number}/reviews`, {
@@ -107,7 +92,7 @@ const run = async () => {
       newLabels.push(newLabel)
     }
 
-    client.rest.issues.setLabels({
+    await client.rest.issues.setLabels({
       ...baseParams,
       labels: newLabels
     })
@@ -117,6 +102,45 @@ const run = async () => {
     core.error(error)
     core.setFailed(error)
   }
+}
+
+const assignPullRequestIfNoAssignees = async ({
+  client, baseParams
+}) => {
+  const pr = await client.rest.issues.get(baseParams)
+  const assignees = pr.data.assignees
+  const author = pr.data.user
+  console.log("assignPullRequestIfNoAssignees", "author:", author.login, "assignees:", assignees )
+  if (!assignees || assignees.length === 0) {
+    await client.request(`POST /repos/${baseParams.owner}/${baseParams.repo}/issues/${baseParams.issue_number}/assignees`, {
+      ...baseParams,
+      assignees: [author.login]
+    })
+  }
+}
+
+const findReviewCountDelta = ({ approveViaComment = false }) => {
+  const action = github.context.payload.action
+
+  let delta = 0
+  if (action == 'dismissed') {
+    delta = -1
+  }
+  if (action == 'submitted' && github.context.payload?.review?.state == 'approved') {
+    delta = +1
+  }
+
+  if (approveViaComment && github.context.payload?.review?.state == 'commented') {
+    let body = github.context.payload?.review?.body || ''
+
+    if(body.includes("👍")) {
+      delta = +1
+    } else if (body.includes("👎")) {
+      delta = -1
+    }
+  }
+
+  return delta
 }
 
 run()
