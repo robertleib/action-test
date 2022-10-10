@@ -134,7 +134,7 @@ const assignPullRequestIfNoAssignees = async ({
   const assignees = pr.assignees
   const author = pr.user
 
-  console.log("assignees:", assignees)
+  console.log("assignees:", assignees?.length || 0)
 
   if (!assignees || assignees.length === 0) {
     await client.request(`POST /repos/${baseParams.owner}/${baseParams.repo}/issues/${baseParams.issue_number}/assignees`, {
