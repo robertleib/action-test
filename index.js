@@ -57,20 +57,15 @@ const run = async () => {
     } else {
       switch(existingApprovalCount) {
         case existingApprovalCount > 2:
-          console.log("existingApprovalCount > 2")
           return
         case 2:
-          console.log("2")
           plusLabel = "+1"
           break
         case 1:
-          console.log("1")
           break
         case 0:
-          console.log("0")
           break
         default:
-          console.log("default")
           break
       }
     }
